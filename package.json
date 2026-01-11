@@ -2,7 +2,7 @@
   "name": "typescript-learning",
   "version": "1.0.0",
   "scripts": {
-    "dev": "tsx watch script.ts"
+    "dev": "tsx watch src/script.ts"
   },
   "devDependencies": {
     "ts-node-dev": "^2.0.0",

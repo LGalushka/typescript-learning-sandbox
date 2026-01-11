@@ -128,3 +128,4 @@ function applyDiscount(price: number, discount?: number): number {
 
 console.log(applyDiscount(45))
 console.log(applyDiscount(45, 10))
+console.log(applyDiscount(50, 5))
