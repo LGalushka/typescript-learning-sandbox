@@ -28,3 +28,4 @@ interface Task extends BaseEntity {
   priority: TaskPriority;   //Enum вместо number
 }
 
+export type { User, Task}
