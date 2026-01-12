@@ -1,131 +1,315 @@
+// Type может описывать простые типы
+type ID = number | string; //ID может быть числои ИЛИ строкой
+
+//Type может описывать объекты (как interface)
 type User = {
+  if: ID;
+  name: string;
+  email: string;
+}
+
+// Type может описывать объединения
+type Status = "active" | "inactive" | "pending";
+
+//Type может описывать функции
+type Logger = (messdge: string) => void;
+
+//Базовый интерфейс - общие свойства для всех пользователей
+interface BasePerson {
   id: number;
   name: string;
-  email?: string; // Опциональное полу, может отсутсвовать
-};
-
-const user1: User = { id: 1, name: "Liliya"} // Ошибки нет хотя email отсутствует
-const user2: User = { id: 2, name: "Ivan", email: "iven@text.com"};
-
-const skills: string[] = ["JavaScript", "TypeScript", "React"];
-const luckyNumbers: Array<number> = [7, 10, 22];
-
-// Union: ID может быть либо числом, либо строкой
-let userId: number | string = 101;
-userId = "ID-550";
-
-//Literal + Union: Статус заказа может быть ТОЛЬКО одним из этих трех слов
-type Status = "loading" | "success" | "error";
-
-let currentStatus: Status = "loading";
-//currentStatus = "finished"; // Ошибка! TS скажет, что такого статуса не существует
-
-type Laptop = {
-  brand: string;
-  ram: number;
-  isTouchscreen?: boolean;
-  ports: string[];
-  os: "windows" | "macos" | "linux";
+  email: string;
 }
 
-const product: Laptop = { brand: "MaxPromi", ram: 12547, isTouchscreen: true, ports: ["usd", "typescr"], os: "windows"}
-console.log(product)
-
-const shopInventory: Laptop[] = [
-  { brand: "Apple", ram: 16, ports: ["usb-c"], os: "macos"},
-  { brand: "Dell", ram: 32, isTouchscreen: true, ports: ["ndmi", "usb"], os: "windows"}
-]
-
-type Product = {
-  title: string;
-  price: number;
+//Интерфейс студента РАСШИРЯЕТ базовый
+//Студент наследует id, name, email И добавляет свои поля
+interface Student extends BasePerson {
+  studentId: string;  //Номер студенческого билета
+  course: number;     //Курс обучения
+  university: string;   //Название университета
 }
 
-type Discount = {
-  discountPercent: number;
-};
+//Интерфейс преподавалетя ТОЖЕ  расширяет базовый
+interface Teacher extends BasePerson {
+  employeeId: string;     // ID сотрудника
+  department: string;     //Кафедра
+  subjects: string[];     //Предметы которые ведет
+}
 
-//Склеиваем их!
-type SaleProduct = Product & Discount;
+// Использование
+const student: Student = {
+  id: 1,
+  name: "Мария",
+  email: "maria@uni.com",
+  studentId: "STU-2024-001",
+  course: 2,
+  university: "МГУ"
+}
 
-const blackFridayDeal: SaleProduct = {
-  title: "Клавиатура",
-  price: 5000,
-  discountPercent: 20 // Обязательно должны быть поля из ОБОИХ  типов
-};
+const teacher: Teacher = {
+  id: 2,
+  name: "Петр Иванивич",
+  email: "pet@uni.com",
+  employeeId: "EMP-123",
+  department: "Информатика",
+  subjects: ["TypeScriot", "JavaScript", "React"]
+}
 
+// Можно расширять несколько интерфейсов одновременно
+interface Timestamps {
+  createAt: Date;
+  updateAt: Date;
+}
 
-type UserNew = {
+interface Auditable {
+  createdBy: string;
+  modifiedBy: string;
+}
+
+//Интерфейс User наследует ОБА интерфейса
+interface IUser extends Timestamps, Auditable {
   id: number;
-  login: string;
-};
-
-type Admin = UserNew & {
-  role: "superadmin" | "moderator";   // Используем Literal + Intersection
+  name: string
 }
 
-const boss: Admin = {
-  id: 0,
-  login: "BigBoss",
-  role: "superadmin"
+// ✅ ХОРОШО: все возможные значения определены
+enum UserStatus {
+  Active,
+  Inactive,
+  Pending,
+  Blocked
 }
 
-type Service = {
+function setStatus(status: UserStatus) {
+  if(status === UserStatus.Active) {
+    console.log("Пользователь активен");
+  }
+}
+
+setStatus(UserStatus.Active)
+setStatus(UserStatus.Blocked)
+
+//Числовые enum (по умолчанию)
+enum Direction {
+  Up,
+  Down,
+  Left,
+  Right
+}
+
+//можно задавать начальное значение
+enum EStatus {
+  Draft = 1,
+  Published,
+  Archived
+}
+
+//Можно задать все значения вручную
+enum HttpStatus {
+  OK = 200,
+  NotFound = 404,
+  ServerError = 500
+}
+
+//Строковый emun (более читаемый)
+enum LogLevel {
+  Error = "ERROR",
+  Warning = "WARNING",
+  Info = "INFO",
+  Debug = "DEBUG"
+}
+
+function log(level: LogLevel, message: string) {
+  console.log(`[${level}] ${message}`)
+}
+
+log(LogLevel.Error, "Произошла ошибка!")
+
+// ✅ ХОРОШО: типы вынесены, код читаемый
+type UserRole = "admin" | "user" | "guest"
+
+type RUser = {
+  id: number;
   name: string;
-  price: number;
-}
-
-type Insurance =  {
-  isFull: boolean;
-}
-
-type SaleProducts = Service & Insurance
-
-const premiumService: SaleProducts = {
-  name: "Доставка",
-  price: 5000,
-  isFull: true
-}
-
-const servicesList: (Service | SaleProducts)[] =[
-  { name: "Мытье окон", price: 1000},
-  { name: "Поднятие век", price: 4000, isFull: false}
-] 
-
-console.log(premiumService)
-console.log(servicesList)
-
-
-// 1. Типизируем аргументы и возвращаемое значение (после двоеточия)
-function calculateTotal(price: number, quantity: number): number {
-  return price * quantity;
-}
-
-// 2. Стрелочные функции
-const logMessage = (message: string): void => {
-  console.log("Log:", message)
+  email: string;
+  role: UserRole;
 };
 
-function getServiceInfo(item: Service): string {
-  return `Услуга: ${item.name}, цена: ${item.price} руб.`;
+type ProcessResult = {
+  succedd: boolean;
+  message: string;
 }
 
-servicesList.forEach(item => {
-  console.log(getServiceInfo(item));
-})
+//Объединение примитивов
+type IDs = string | number;
 
-servicesList.map(item=> {
-  console.log(getServiceInfo(item))
-})
+//Объединение литералов (похоже на enum, но проще)
+type Theme = "light" | "dark" | "auto";
 
-function applyDiscount(price: number, discount?: number): number {
-    if(discount) {
-    return price - (price * discount / 100);
-    }else {
-      return price;
-    }
+// Сложные структуры
+type ApiResponse<T> = {
+  data: T;
+  status: number;
+  message:string;
 }
 
-console.log(applyDiscount(45))
-console.log(applyDiscount(45, 10))
-console.log(applyDiscount(50, 5))
+//Функциональные типы
+type Validator = (value: string) => boolean;
+type EventHandler = (event: Event) => void;
+
+// Кортежи (tuple) - массив фиксированной длины с типами
+type Coordinates = [number, number];  // [широта, долгота]
+type RGB = [number, number, number]; // [ red, green, blue]
+
+//называть типы понятно
+// Плохо
+type T = string;
+type Date = any;
+
+// ХОРОШО
+type UserId = string;
+type UserProfile = {
+  name: string;
+  avatar: string;
+}
+
+//Документируйте сложные типы:
+/**
+ * Представляет пользователя системы
+ * @property id - Уникальный идентификатор
+ * @property name - Полное имя пользователя
+ * @property role - Роль в системе (влият на права доступа)
+ */
+
+interface UserR {
+  id: number;
+  name: string;
+  role: UserRole;
+}
+
+// ==== БАЗОВЫЕ ИНТЕРФЕЙСЫ =====
+/**
+ * Базовый интерфейс для всех сущностей с ID
+ * Любой объект в нашей системе имеет уникальный идектификатор
+ */
+
+interface BaseEntity {
+  id: number;
+  createdAt: Date;    // Когда создан
+  updatedAt: Date;    // Когда обновлен
+}
+
+/**
+ * Интерфейс пользователя
+ * Описывает структуру данных о пользователе системы
+ */
+
+interface UserNow extends BaseEntity {
+  name: string;   // Имя пользователя
+  email: string;  // Email (уникальный)
+  avatar?: string;  //URL аватар (необязательно)
+}
+
+/**
+ * Интерфейс задачи
+ * Описывает структуру задачи в системе
+ */
+interface Task extends BaseEntity {
+  title: string;    // Название задачи
+  description: string;    //Описание задачи
+  userId: number;     //ID пользователя-владельца
+  completed: boolean;   //Завершена ли задача
+}
+
+//export {BaseEntity, UserNow, Task};
+
+/**
+ * Интерфейс для комментария к задаче
+ * Пользователи могут комментировать задачи
+ */
+interface Comment extends BaseEntity {
+  tastId: number;     // К какой задаче относится
+  userId: number;     //Кто оставил комментарий
+  text: string;     // Текст комментария
+}
+
+/**
+ * Интерфейс для проекта
+ * Проект может содеражать множество задач
+ */
+interface Project extends BaseEntity {
+  name: string;     // Название проекта
+  description: string;      //Описание проекта
+  ownerId: number;        //ID владельца проекта
+  memberIds: number[];    //Массив ID участников
+}
+
+/**
+ * Расширенная задача с привязкой к проекту
+ */
+interface ProjectTask extends Task {
+  projectId: number;    // ID проекта
+  priority: number;     // Приоритет (1-5)
+  tags: string[];       //Теги для категоризации
+}
+
+// export { Comment, Project, ProjectTask};
+
+//==== СОЗДАНИЕ ПОЛЬЗОВАТЕЛЯ ====
+const user1: UserNow = {
+  id: 1,
+  name: "Иван Петров",
+  email: "ivan@exemple.com",
+  avatar: "https://exemple.com/avater1.jpg",
+  createdAt: new Date(),
+  updatedAt: new Date(),
+}
+
+//пользователь без аватара (необязательное поле)
+const user2: UserNow = {
+  id: 2,
+  name: "Мария Сидорова",
+  email: "maria@example.com",
+  //avatar пропущен - это нормально!
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+//==== СОЗДАНИЕ ПРОКТА ====
+const project: Project = {
+  id: 1,
+  name: "Разработка веб-приложения",
+  description: "Создание SaaS платформы для управления задачами",
+  ownerId: user1.id,
+  memberIds: [user1.id, user2.id],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+//====  СОЗДАНИЕ ЗАДАЧИ ====
+const task: ProjectTask = {
+  id: 1,
+  title: "Настроить TypeScript",
+  description: "Изучить и настроить TypeScript в проекте",
+  userId: user1.id,
+  projectId: project.id,
+  completed: false,
+  priority: 5,
+  tags: ["setup", "typescript"],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+//=== ФУНКЦИЯ ДЛЯ ВЫВОДА ИНФОРМАЦИИ ===
+function displayTask(task: ProjectTask, user: UserNow): void {
+  console.log(`
+    📋 Задача: ${task.title}
+    👤 Исполнитель: ${user.name}
+    🎯 Приоритет: ${task.priority}/5
+    📅 Создана: ${task.createdAt.toLocaleDateString()}
+    ✅ Статус: ${task.completed ? 'Завершена' : 'В работе'}
+    `)
+}
+
+//Вызов функции
+displayTask(task, user1)
