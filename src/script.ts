@@ -1,131 +1,224 @@
+// Type может описывать простые типы
+type ID = number | string; //ID может быть числои ИЛИ строкой
+
+//Type может описывать объекты (как interface)
 type User = {
+  if: ID;
+  name: string;
+  email: string;
+}
+
+// Type может описывать объединения
+type Status = "active" | "inactive" | "pending";
+
+//Type может описывать функции
+type Logger = (messdge: string) => void;
+
+//Базовый интерфейс - общие свойства для всех пользователей
+interface BasePerson {
   id: number;
   name: string;
-  email?: string; // Опциональное полу, может отсутсвовать
-};
-
-const user1: User = { id: 1, name: "Liliya"} // Ошибки нет хотя email отсутствует
-const user2: User = { id: 2, name: "Ivan", email: "iven@text.com"};
-
-const skills: string[] = ["JavaScript", "TypeScript", "React"];
-const luckyNumbers: Array<number> = [7, 10, 22];
-
-// Union: ID может быть либо числом, либо строкой
-let userId: number | string = 101;
-userId = "ID-550";
-
-//Literal + Union: Статус заказа может быть ТОЛЬКО одним из этих трех слов
-type Status = "loading" | "success" | "error";
-
-let currentStatus: Status = "loading";
-//currentStatus = "finished"; // Ошибка! TS скажет, что такого статуса не существует
-
-type Laptop = {
-  brand: string;
-  ram: number;
-  isTouchscreen?: boolean;
-  ports: string[];
-  os: "windows" | "macos" | "linux";
+  email: string;
 }
 
-const product: Laptop = { brand: "MaxPromi", ram: 12547, isTouchscreen: true, ports: ["usd", "typescr"], os: "windows"}
-console.log(product)
-
-const shopInventory: Laptop[] = [
-  { brand: "Apple", ram: 16, ports: ["usb-c"], os: "macos"},
-  { brand: "Dell", ram: 32, isTouchscreen: true, ports: ["ndmi", "usb"], os: "windows"}
-]
-
-type Product = {
-  title: string;
-  price: number;
+//Интерфейс студента РАСШИРЯЕТ базовый
+//Студент наследует id, name, email И добавляет свои поля
+interface Student extends BasePerson {
+  studentId: string;  //Номер студенческого билета
+  course: number;     //Курс обучения
+  university: string;   //Название университета
 }
 
-type Discount = {
-  discountPercent: number;
-};
+//Интерфейс преподавалетя ТОЖЕ  расширяет базовый
+interface Teacher extends BasePerson {
+  employeeId: string;     // ID сотрудника
+  department: string;     //Кафедра
+  subjects: string[];     //Предметы которые ведет
+}
 
-//Склеиваем их!
-type SaleProduct = Product & Discount;
+// Использование
+const student: Student = {
+  id: 1,
+  name: "Мария",
+  email: "maria@uni.com",
+  studentId: "STU-2024-001",
+  course: 2,
+  university: "МГУ"
+}
 
-const blackFridayDeal: SaleProduct = {
-  title: "Клавиатура",
-  price: 5000,
-  discountPercent: 20 // Обязательно должны быть поля из ОБОИХ  типов
-};
+const teacher: Teacher = {
+  id: 2,
+  name: "Петр Иванивич",
+  email: "pet@uni.com",
+  employeeId: "EMP-123",
+  department: "Информатика",
+  subjects: ["TypeScriot", "JavaScript", "React"]
+}
 
+// Можно расширять несколько интерфейсов одновременно
+interface Timestamps {
+  createAt: Date;
+  updateAt: Date;
+}
 
-type UserNew = {
+interface Auditable {
+  createdBy: string;
+  modifiedBy: string;
+}
+
+//Интерфейс User наследует ОБА интерфейса
+interface IUser extends Timestamps, Auditable {
   id: number;
-  login: string;
-};
-
-type Admin = UserNew & {
-  role: "superadmin" | "moderator";   // Используем Literal + Intersection
+  name: string
 }
 
-const boss: Admin = {
-  id: 0,
-  login: "BigBoss",
-  role: "superadmin"
+// ✅ ХОРОШО: все возможные значения определены
+enum UserStatus {
+  Active,
+  Inactive,
+  Pending,
+  Blocked
 }
 
-type Service = {
+function setStatus(status: UserStatus) {
+  if(status === UserStatus.Active) {
+    console.log("Пользователь активен");
+  }
+}
+
+setStatus(UserStatus.Active)
+setStatus(UserStatus.Blocked)
+
+//Числовые enum (по умолчанию)
+enum Direction {
+  Up,
+  Down,
+  Left,
+  Right
+}
+
+//можно задавать начальное значение
+enum EStatus {
+  Draft = 1,
+  Published,
+  Archived
+}
+
+//Можно задать все значения вручную
+enum HttpStatus {
+  OK = 200,
+  NotFound = 404,
+  ServerError = 500
+}
+
+//Строковый emun (более читаемый)
+enum LogLevel {
+  Error = "ERROR",
+  Warning = "WARNING",
+  Info = "INFO",
+  Debug = "DEBUG"
+}
+
+function log(level: LogLevel, message: string) {
+  console.log(`[${level}] ${message}`)
+}
+
+log(LogLevel.Error, "Произошла ошибка!")
+
+// ✅ ХОРОШО: типы вынесены, код читаемый
+type UserRole = "admin" | "user" | "guest"
+
+type RUser = {
+  id: number;
   name: string;
-  price: number;
-}
-
-type Insurance =  {
-  isFull: boolean;
-}
-
-type SaleProducts = Service & Insurance
-
-const premiumService: SaleProducts = {
-  name: "Доставка",
-  price: 5000,
-  isFull: true
-}
-
-const servicesList: (Service | SaleProducts)[] =[
-  { name: "Мытье окон", price: 1000},
-  { name: "Поднятие век", price: 4000, isFull: false}
-] 
-
-console.log(premiumService)
-console.log(servicesList)
-
-
-// 1. Типизируем аргументы и возвращаемое значение (после двоеточия)
-function calculateTotal(price: number, quantity: number): number {
-  return price * quantity;
-}
-
-// 2. Стрелочные функции
-const logMessage = (message: string): void => {
-  console.log("Log:", message)
+  email: string;
+  role: UserRole;
 };
 
-function getServiceInfo(item: Service): string {
-  return `Услуга: ${item.name}, цена: ${item.price} руб.`;
+type ProcessResult = {
+  succedd: boolean;
+  message: string;
 }
 
-servicesList.forEach(item => {
-  console.log(getServiceInfo(item));
-})
+//Объединение примитивов
+type IDs = string | number;
 
-servicesList.map(item=> {
-  console.log(getServiceInfo(item))
-})
+//Объединение литералов (похоже на enum, но проще)
+type Theme = "light" | "dark" | "auto";
 
-function applyDiscount(price: number, discount?: number): number {
-    if(discount) {
-    return price - (price * discount / 100);
-    }else {
-      return price;
-    }
+// Сложные структуры
+type ApiResponse<T> = {
+  data: T;
+  status: number;
+  message:string;
 }
 
-console.log(applyDiscount(45))
-console.log(applyDiscount(45, 10))
-console.log(applyDiscount(50, 5))
+//Функциональные типы
+type Validator = (value: string) => boolean;
+type EventHandler = (event: Event) => void;
+
+// Кортежи (tuple) - массив фиксированной длины с типами
+type Coordinates = [number, number];  // [широта, долгота]
+type RGB = [number, number, number]; // [ red, green, blue]
+
+//называть типы понятно
+// Плохо
+type T = string;
+type Date = any;
+
+// ХОРОШО
+type UserId = string;
+type UserProfile = {
+  name: string;
+  avatar: string;
+}
+
+//Документируйте сложные типы:
+/**
+ * Представляет пользователя системы
+ * @property id - Уникальный идентификатор
+ * @property name - Полное имя пользователя
+ * @property role - Роль в системе (влият на права доступа)
+ */
+
+interface UserR {
+  id: number;
+  name: string;
+  role: UserRole;
+}
+
+// ==== БАЗОВЫЕ ИНТЕРФЕЙСЫ =====
+/**
+ * Базовый интерфейс для всех сущностей с ID
+ * Любой объект в нашей системе имеет уникальный идектификатор
+ */
+
+interface BaseEntity {
+  id: number;
+  createdAt: Date;    // Когда создан
+  updatedAt: Date;    // Когда обновлен
+}
+
+/**
+ * Интерфейс пользователя
+ * Описывает структуру данных о пользователе системы
+ */
+
+interface UserNow extends BaseEntity {
+  name: string;   // Имя пользователя
+  email: string;  // Email (уникальный)
+  avatar?: string;  //URL аватар (необязательно)
+}
+
+/**
+ * Интерфейс задачи
+ * Описывает структуру задачи в системе
+ */
+interface Task extends BaseEntity {
+  title: string;    // Название задачи
+  description: string;    //Описание задачи
+  userId: number;     //ID пользователя-владельца
+  completed: boolean;   //Завершена ли задача
+}
+
+//export {BaseEntity, UserNow, Task};
