@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "tsx watch src/script.ts",
     "dev:enums": "tsx watch src/enums.ts",  
-    "dev:types": "tsx watch src/types.ts"  
+    "dev:types": "tsx watch src/types.ts",
+    "dev:example2": "tsx watch src/example2.ts"  
   },
   "devDependencies": {
     "ts-node-dev": "^2.0.0",
