@@ -222,3 +222,94 @@ interface Task extends BaseEntity {
 }
 
 //export {BaseEntity, UserNow, Task};
+
+/**
+ * Интерфейс для комментария к задаче
+ * Пользователи могут комментировать задачи
+ */
+interface Comment extends BaseEntity {
+  tastId: number;     // К какой задаче относится
+  userId: number;     //Кто оставил комментарий
+  text: string;     // Текст комментария
+}
+
+/**
+ * Интерфейс для проекта
+ * Проект может содеражать множество задач
+ */
+interface Project extends BaseEntity {
+  name: string;     // Название проекта
+  description: string;      //Описание проекта
+  ownerId: number;        //ID владельца проекта
+  memberIds: number[];    //Массив ID участников
+}
+
+/**
+ * Расширенная задача с привязкой к проекту
+ */
+interface ProjectTask extends Task {
+  projectId: number;    // ID проекта
+  priority: number;     // Приоритет (1-5)
+  tags: string[];       //Теги для категоризации
+}
+
+// export { Comment, Project, ProjectTask};
+
+//==== СОЗДАНИЕ ПОЛЬЗОВАТЕЛЯ ====
+const user1: UserNow = {
+  id: 1,
+  name: "Иван Петров",
+  email: "ivan@exemple.com",
+  avatar: "https://exemple.com/avater1.jpg",
+  createdAt: new Date(),
+  updatedAt: new Date(),
+}
+
+//пользователь без аватара (необязательное поле)
+const user2: UserNow = {
+  id: 2,
+  name: "Мария Сидорова",
+  email: "maria@example.com",
+  //avatar пропущен - это нормально!
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+//==== СОЗДАНИЕ ПРОКТА ====
+const project: Project = {
+  id: 1,
+  name: "Разработка веб-приложения",
+  description: "Создание SaaS платформы для управления задачами",
+  ownerId: user1.id,
+  memberIds: [user1.id, user2.id],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+//====  СОЗДАНИЕ ЗАДАЧИ ====
+const task: ProjectTask = {
+  id: 1,
+  title: "Настроить TypeScript",
+  description: "Изучить и настроить TypeScript в проекте",
+  userId: user1.id,
+  projectId: project.id,
+  completed: false,
+  priority: 5,
+  tags: ["setup", "typescript"],
+  createdAt: new Date(),
+  updatedAt: new Date(),
+};
+
+//=== ФУНКЦИЯ ДЛЯ ВЫВОДА ИНФОРМАЦИИ ===
+function displayTask(task: ProjectTask, user: UserNow): void {
+  console.log(`
+    📋 Задача: ${task.title}
+    👤 Исполнитель: ${user.name}
+    🎯 Приоритет: ${task.priority}/5
+    📅 Создана: ${task.createdAt.toLocaleDateString()}
+    ✅ Статус: ${task.completed ? 'Завершена' : 'В работе'}
+    `)
+}
+
+//Вызов функции
+displayTask(task, user1)
